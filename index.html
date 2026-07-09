@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#33573F">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Captura Poncho 🐾</title>
+<style>
+  :root{
+    --bg:#F4F6EF; --card:#fff; --ink:#26352C; --muted:#6E7C70; --line:#E3E8DE;
+    --green:#4E7D5B; --green-deep:#33573F; --green-soft:#E4EFE4;
+    --honey:#E3A438; --honey-soft:#FBF0D8; --lilac:#9B7FC0; --lilac-soft:#EFE9F7;
+    --red:#C4574B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'Karla','Segoe UI',system-ui,sans-serif;
+    min-height:100vh; padding:16px 14px 40px; max-width:480px; margin:0 auto;
+  }
+  header{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  header .logo{width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg,var(--lilac-soft),var(--green-soft)); display:grid; place-items:center; font-size:22px;}
+  header h1{font-family:Georgia,serif; font-size:1.2rem;}
+  header p{font-size:.75rem; color:var(--muted);}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:0 2px 10px rgba(38,53,44,.06); margin-bottom:14px;}
+
+  label{font-size:.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:4px;}
+  input{
+    width:100%; font-family:inherit; color:var(--ink); background:#fff;
+    border:1px solid var(--line); border-radius:14px; padding:14px; font-size:1.05rem; outline:none;
+  }
+  input:focus{border-color:var(--green);}
+  #valor{font-size:1.7rem; font-weight:700; text-align:center;}
+  .mt{margin-top:12px;}
+
+  .chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    border:1px solid var(--line); background:#fff; border-radius:999px;
+    padding:9px 13px; font-size:.9rem; font-weight:600; color:var(--muted); cursor:pointer;
+  }
+  .chip.on{background:var(--green-deep); border-color:var(--green-deep); color:#fff;}
+
+  button.big{
+    width:100%; border:none; border-radius:16px; padding:16px; margin-top:14px;
+    font-family:inherit; font-size:1.1rem; font-weight:700; cursor:pointer;
+    background:var(--green-deep); color:#fff;
+  }
+  button.big:active{transform:scale(.98);}
+  button.big.lilac{background:var(--lilac);}
+  button.big.ghost{background:var(--green-soft); color:var(--green-deep);}
+
+  .item{display:flex; align-items:center; gap:10px; padding:10px 2px; border-bottom:1px dashed var(--line); font-size:.95rem;}
+  .item:last-child{border-bottom:none;}
+  .item .d{flex:1;}
+  .item .d small{display:block; color:var(--muted); font-size:.75rem;}
+  .item b{font-size:1rem;}
+  .item .x{border:none; background:none; font-size:1.1rem; opacity:.5; padding:4px;}
+  .tot{display:flex; justify-content:space-between; font-weight:700; padding-top:10px; font-size:1rem;}
+  .empty{text-align:center; color:var(--muted); padding:20px 8px; font-size:.9rem;}
+  .empty .big{font-size:2rem; margin-bottom:6px;}
+  .note{background:var(--honey-soft); border:1px solid #F0DCAE; border-radius:12px; padding:10px 12px; font-size:.8rem; color:#6B4E10; margin-top:12px;}
+  #toast{
+    position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(70px);
+    background:var(--ink); color:#fff; padding:10px 18px; border-radius:99px;
+    font-size:.85rem; font-weight:600; opacity:0; transition:.3s; z-index:9; white-space:nowrap;
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🐾</div>
+  <div>
+    <h1>Captura Poncho</h1>
+    <p>anota agora, categoriza em casa</p>
+  </div>
+</header>
+
+<div class="card">
+  <label>Quanto? (R$)</label>
+  <input type="number" id="valor" inputmode="decimal" step="0.01" min="0.01" placeholder="0,00">
+  <div class="mt">
+    <label>O quê?</label>
+    <input type="text" id="desc" placeholder="sorvete, padaria, uber…">
+  </div>
+  <div class="mt">
+    <label>Categoria (opcional — dá pra decidir depois)</label>
+    <div class="chips" id="chips">
+      <span class="chip on" data-c="">🕳️ depois</span>
+      <span class="chip" data-c="food">🍕 comida</span>
+      <span class="chip" data-c="mercado">🛒 mercado</span>
+      <span class="chip" data-c="transporte">🚗 transporte</span>
+      <span class="chip" data-c="poncho">🐶 poncho</span>
+      <span class="chip" data-c="cuidados">💅 cuidados</span>
+      <span class="chip" data-c="compras">🛍️ compras</span>
+    </div>
+  </div>
+  <button class="big" id="btnAdd">Anotar 🐾</button>
+</div>
+
+<div class="card">
+  <label>Capturas pendentes</label>
+  <div id="lista"></div>
+  <button class="big lilac" id="btnShare">📤 Enviar pro dashboard</button>
+  <button class="big ghost" id="btnClear">🧹 Limpar lista</button>
+  <div class="note">Depois de enviar (WhatsApp pra você mesma funciona ótimo), cole o texto na <b>📥 Caixa de entrada</b> do Plano de Voo. Dica: no Chrome, menu ⋮ → <b>“Adicionar à tela inicial”</b> transforma esta página num app.</div>
+</div>
+
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const LS='poncho_captura_v1';
+let itens=[];
+try{itens=JSON.parse(localStorage.getItem(LS)||'[]');}catch(e){itens=[];}
+function persist(){try{localStorage.setItem(LS,JSON.stringify(itens));}catch(e){}}
+const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+let catSel='';
+$('#chips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c)return;
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on'); catSel=c.dataset.c;
+});
+function render(){
+  const l=$('#lista');
+  if(!itens.length){l.innerHTML='<div class="empty"><div class="big">🐶</div>Nada pendente. O Poncho aguarda o próximo sorvete.</div>';return;}
+  const tot=itens.reduce((a,i)=>a+i.v,0);
+  l.innerHTML=itens.map((i,ix)=>'<div class="item"><div class="d">'+i.desc+'<small>'+i.d.split('-').reverse().join('/')+(i.c?' · '+i.c:' · sem categoria')+'</small></div><b>'+fmt(i.v)+'</b><button class="x" onclick="del('+ix+')">🗑️</button></div>').join('')+
+  '<div class="tot"><span>'+itens.length+' captura'+(itens.length>1?'s':'')+'</span><span>'+fmt(tot)+'</span></div>';
+}
+window.del=ix=>{itens.splice(ix,1);persist();render();};
+$('#btnAdd').onclick=()=>{
+  const v=parseFloat(String($('#valor').value).replace(',','.'));
+  const desc=$('#desc').value.trim();
+  if(isNaN(v)||v<=0){toast('Digite o valor');return;}
+  if(!desc){toast('Digite o que foi');return;}
+  const hoje=new Date();
+  const d=hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0')+'-'+String(hoje.getDate()).padStart(2,'0');
+  itens.push({d,desc,v,c:catSel});
+  persist();render();
+  $('#valor').value='';$('#desc').value='';
+  toast('Anotado! 🐾');
+  $('#valor').focus();
+};
+function textoExport(){
+  return '🐾 Plano de Voo — capturas\n'+itens.map(i=>
+    i.d.split('-').reverse().join('/')+'; '+i.desc.replace(/;/g,',')+'; '+i.v.toFixed(2).replace('.',',')+'; '+(i.c||'?')
+  ).join('\n');
+}
+$('#btnShare').onclick=async()=>{
+  if(!itens.length){toast('Nada pra enviar');return;}
+  const txt=textoExport();
+  if(navigator.share){try{await navigator.share({text:txt});toast('Enviado! Cole no dashboard 📥');return;}catch(e){if(e.name==='AbortError')return;}}
+  try{await navigator.clipboard.writeText(txt);toast('Copiado! Cole no dashboard 📥');}
+  catch(e){prompt('Copie o texto abaixo:',txt);}
+};
+$('#btnClear').onclick=()=>{
+  if(!itens.length)return;
+  if(confirm('Limpar todas as capturas? (Só faça depois de colar no dashboard!)')){itens=[];persist();render();toast('Lista limpa 🧹');}
+};
+render();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+</script>
+</body>
+</html>
